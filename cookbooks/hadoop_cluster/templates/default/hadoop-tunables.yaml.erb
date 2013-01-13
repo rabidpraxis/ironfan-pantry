@@ -3,16 +3,27 @@
 # human-readable summary of the configuration
 #
 
+<%- self.extend Ironfan::Discovery  %>
+
 cluster:
-  <%- [:namenode, :secondarynn, :jobtracker, :datanode, :tasktracker].each do |subsys| %>
-  <%- discovered = discover_all(:hadoop, subsys) %>
-  <%= subsys %>:
-    count:                  <%= discovered.size %>
-    locations:
-      <%- discovered.each do |comp| %>
-      - <%= [comp.cluster, comp.facet, comp.facet_index.to_i, comp.node.name, comp.public_ip, comp.private_ip].inspect %>
-      <%- end %>
+  <%- { :namenode => @namenodes, :secondarynn => @secondarynns, :jobtracker => @jobtrackers, :datanode => @datanodes, :tasktracker => @tasktrackers }.each do |subsys_name, subsyses| %>
+  <%= subsys_name %>s:
+    <%- subsyses.each do |subsys| %>
+    - realm:                <%= subsys.realm   %>
+      announced_at:         <%= subsys.timestamp %>
+      cluster:              <%= subsys.cluster %>
+      facet:                <%= subsys.facet   %>
+      facet_index:          <%= subsys.facet_index.to_i %>
+      node_name:            <%= subsys.node.name %>
+      public_ip:            <%= subsys.public_ip %>
+      private_ip:           <%= subsys.private_ip %>
+          
+    <%- end %>
   <%- end %>
+
+  topology:
+    fake_topology:          <%= @hadoop[:define_topology] %>
+    fake_rack_size:         <%= @hadoop[:fake_rack_size] %>
 
 machine:  
   ipaddress:                <%= node[:ipaddress] %>
@@ -79,12 +90,8 @@ daemons:
     run_state:              <%= @hadoop[:tasktracker][:run_state] %>
     # handler count, kinda
     http_threads:           <%= @hadoop[:tasktracker][:http_threads] %>
-    java_heap_size_max:     <%= @hadoop[:tasktracker][:java_heap_size_max] %>
+    java_heap_size_max:     <%= @hadoop[:tasktracker][:java_heap_size_max] || @hadoop[:java_heap_size_max] %>
     scratch_dirs:           <%= @hadoop[:tasktracker][:scratch_dirs] %>
-
-  topology:
-    fake_topology:          <%= @hadoop[:define_topology] %>
-    fake_rack_size:         <%= @hadoop[:fake_rack_size] %>
 
 dfs:
   s3_block_size:            <%= @hadoop[:s3_block_size]   || @hadoop[:hdfs_block_size] %>
