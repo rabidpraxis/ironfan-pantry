@@ -20,7 +20,7 @@ CLUSTER   = '<%= node[:cluster_name] %>'
 # calculate the lookup table while we're in chef means the script is stupid and
 # doesn't need access to chef
 NODE_TO_RACK_MAPPING = {
-<%- @hadoop_datanodes.sort_by{|c| c.node.name.to_s }.each do |comp| %>
+<%- @datanodes.sort_by{|c| c.node.name.to_s }.each do |comp| %>
   <%- facet_index = comp.facet_index.to_i ; rack_size = @hadoop[:fake_rack_size].to_i %>
   <%- rack_name   = (facet_index < rack_size) ? 'lo' : 'hi' %>
   <%- comp_info   = [comp.facet, facet_index, comp.node.name, rack_name].inspect %>

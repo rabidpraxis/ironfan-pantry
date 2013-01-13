@@ -46,8 +46,9 @@ default[:hadoop][:balancer    ][:run_state]  = :stop
 #
 default[:hadoop][:namenode   ][:data_dirs]       = []
 default[:hadoop][:secondarynn][:data_dirs]       = []
-default[:hadoop][:jobtracker ][:system_hdfsdir]  = '/hadoop/mapred/system'  # note: on the HDFS
-default[:hadoop][:jobtracker ][:staging_hdfsdir] = '/hadoop/mapred/staging' # note: on the HDFS
+default[:hadoop][:jobtracker ][:system_hdfsdir]  = '/hadoop/mapred/system'   # note: on the HDFS
+default[:hadoop][:jobtracker ][:staging_hdfsdir] = '/hadoop/mapred/staging'  # note: on the HDFS
+default[:hadoop][:jobtracker ][:jobstat_hdfsdir] = '/hadoop/jobstat'         # note: on the HDFS
 default[:hadoop][:datanode   ][:data_dirs]       = []
 default[:hadoop][:tasktracker][:scratch_dirs]    = []
 

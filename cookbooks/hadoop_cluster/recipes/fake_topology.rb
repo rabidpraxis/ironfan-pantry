@@ -43,6 +43,10 @@
 #
 # Notes:
 #
+# * DO NOT DO THIS UNLESS YOUR HDFS IS PERSISTENT-STORAGE BACKED. Use EBS
+#   volumes or the equivalent; don't use this if your machines keep blocks on an
+#   ephemeral drive.
+#
 # * make sure to over-provision storage for machines on the first rack: shutting
 #   down the ephemeral rack causes all the data to replicate (the replication
 #   factor is honored even if an alternate rack isn't available).
@@ -75,8 +79,10 @@ if node[:hadoop][:define_topology]
   template "#{node[:hadoop][:conf_dir]}/hadoop-topologizer.rb" do
     owner         "root"
     mode          "0755"
-    variables({   :hadoop => hadoop_config_hash,
-        :hadoop_datanodes => discover_all(:hadoop, :datanode) })
+    variables({
+      :hadoop       => hadoop_config_hash,
+      :datanodes    => discover_all(:hadoop, :datanode),
+      :tasktrackers => discover_all(:hadoop, :tasktracker), })
     source        "hadoop-topologizer.rb.erb"
   end
 end

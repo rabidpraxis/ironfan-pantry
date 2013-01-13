@@ -18,10 +18,21 @@ module HadoopCluster
 
   # hash of hadoop options suitable for passing to template files
   def hadoop_config_hash
-    Mash.new({
+    hsh = Mash.new()
+    hsh.merge!({
         :aws              => (node[:aws] && node[:aws].to_hash),
         :extra_classpaths => node[:hadoop][:extra_classpaths].map{|nm, classpath| classpath }.flatten,
-      }).merge(node[:hadoop])
+      })
+    java_opts              = node[:hadoop][:java_child_opts]
+    if node[:hadoop][:task_profile]
+      java_opts += " -Xprof -verbose:gc -Xloggc:/tmp/hdp-task-gc-@taskid@.log"
+      # java_opts += "-Dcom.sun.management.jmxremote -Djava.rmi.server.hostname=#{node[:hadoop][:jmx_dash_addr]} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+      # -agentlib:hprof=cpu=samples,interval=1,file=<outputfilename>
+    end
+    hsh[:java_map_opts]    = "#{java_opts} -Xmx#{node[:hadoop][:map_heap_mb]}m"
+    hsh[:java_reduce_opts] = "#{java_opts} -Xmx#{node[:hadoop][:reduce_heap_mb]}m"
+
+    hsh.merge(node[:hadoop])
   end
 
   # Create a symlink to a directory, wiping away any existing dir that's in the way

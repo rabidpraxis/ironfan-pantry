@@ -31,12 +31,15 @@ node[:hadoop][:secondarynn][:addr] = discover(:hadoop, :secondarynn).private_ip 
 
 %w[ core-site.xml     hdfs-site.xml     mapred-site.xml
     hadoop-env.sh     fairscheduler.xml hadoop-metrics.properties
-    log4j.properties
+    log4j.properties  hadoop-tunables.yaml
 ].each do |conf_file|
   template "#{node[:hadoop][:conf_dir]}/#{conf_file}" do
     owner "root"
     mode "0644"
-    variables(:hadoop => hadoop_config_hash)
+    variables({
+      :hadoop       => hadoop_config_hash,
+      :datanodes    => discover_all(:hadoop, :datanode),
+      :tasktrackers => discover_all(:hadoop, :tasktracker), })
     source "#{conf_file}.erb"
     hadoop_services.each do |svc|
       if startable?(node[:hadoop][svc])
