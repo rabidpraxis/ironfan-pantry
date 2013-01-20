@@ -5,14 +5,14 @@ module Ironfan
     # Fill cloud hash with virtualbox heuristics
     def get_cloud_from_virtualbox
       return unless node[:virtualization] && node[:virtualization][:system] == "vbox"
-      node[:cloud] ||= Mash.new()
-      node[:cloud][:public_ips]      = node[:virtualbox]['public_ips']
-      node[:cloud][:private_ips]     = node[:virtualbox]['private_ips']
-      node[:cloud][:public_ipv4]     = node[:virtualbox]['public_ipv4']
-      node[:cloud][:public_hostname] = node[:virtualbox]['public_hostname']
-      node[:cloud][:local_ipv4]      = node[:virtualbox]['local_ipv4']
-      node[:cloud][:local_hostname]  = node[:virtualbox]['local_hostname']
-      node[:cloud][:provider]        = "virtualbox"
+      node.set[:cloud] ||= Mash.new()
+      node.set[:cloud][:public_ips]      = node[:virtualbox]['public_ips']
+      node.set[:cloud][:private_ips]     = node[:virtualbox]['private_ips']
+      node.set[:cloud][:public_ipv4]     = node[:virtualbox]['public_ipv4']
+      node.set[:cloud][:public_hostname] = node[:virtualbox]['public_hostname']
+      node.set[:cloud][:local_ipv4]      = node[:virtualbox]['local_ipv4']
+      node.set[:cloud][:local_hostname]  = node[:virtualbox]['local_hostname']
+      node.set[:cloud][:provider]        = "virtualbox"
     end
 
     #
@@ -30,10 +30,10 @@ module Ironfan
     #
     def get_virtualbox_network_info
       return unless node[:virtualization] && node[:virtualization][:system] == "vbox"
-      node[:virtualbox] ||= Mash.new
-      node[:virtualbox][:public_ips]    = []
-      node[:virtualbox][:private_ips]   = []
-      node[:virtualbox][:host_only_ips] = []
+      node.set[:virtualbox] ||= Mash.new
+      node.set[:virtualbox][:public_ips]    = []
+      node.set[:virtualbox][:private_ips]   = []
+      node.set[:virtualbox][:host_only_ips] = []
       get_ips_from_network.each do |ip|
         case virtualbox_classify_interface(ip)
         when :private_24, :private_20, :private_16
@@ -48,13 +48,13 @@ module Ironfan
       if node[:virtualbox][:public_ips].empty?
         first_private_ip = (node[:virtualbox][:private_ips] - node[:virtualbox][:host_only_ips]).first
         if first_private_ip
-          node[:virtualbox][:public_ips]   = [first_private_ip]
-          node[:virtualbox][:private_ips] -= [first_private_ip]
+          node.set[:virtualbox][:public_ips]   = [first_private_ip]
+          node.set[:virtualbox][:private_ips] -= [first_private_ip]
         end
       end
-      node[:virtualbox][:local_ipv4]      = node[:virtualbox][:host_only_ips].first || node[:virtualbox][:private_ips].first
-      node[:virtualbox][:public_ipv4]     = node[:virtualbox][:public_ips].first
-      node[:virtualbox][:public_hostname] = node[:fqdn]
+      node.set[:virtualbox][:local_ipv4]      = node[:virtualbox][:host_only_ips].first || node[:virtualbox][:private_ips].first
+      node.set[:virtualbox][:public_ipv4]     = node[:virtualbox][:public_ips].first
+      node.set[:virtualbox][:public_hostname] = node[:fqdn]
     end
 
     #
